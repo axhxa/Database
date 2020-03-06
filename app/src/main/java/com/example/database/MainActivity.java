@@ -61,12 +61,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickRead(View view){
         Cursor cursor=db.rawQuery("select * from email",null);
+        String str="";
         while(cursor.moveToNext()){
             String name=cursor.getString(cursor.getColumnIndex("name"));
             String email=cursor.getString(cursor.getColumnIndex("email"));
-            String num=cursor.getString(cursor.getColumnIndex("num"));
-            text.setText(name+email+num);
+            String num=cursor.getString(cursor.getColumnIndex("phone_num"));
+            str=str+"name:"+name+"email:"+email+"phone number:"+num+"\n";
         }
+        text.setText(str);
     }
 
     public void onClickUpdate(View view){
