@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,12 +35,12 @@ public class MainActivity extends AppCompatActivity {
     public class DatabaseHelper extends SQLiteOpenHelper{
         DatabaseHelper()
         {
-            super(context, "email",null , 1);
+            super(context, "Email",null , 1);
         }
         @Override
         public void onCreate(SQLiteDatabase db) {
             // TODO 创建数据库后，对数据库的操作
-            db.execSQL("create table email(name varchar(20),email varchar(20) primary key,phone_num varchar(20))");
+            db.execSQL("create table Email(name varchar(20),email varchar(20) primary key,phone_num varchar(20))");
         }
 
         @Override
@@ -55,27 +56,67 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onClickWrite(View view){
-        db.execSQL("insert into email values("+"'"+name.getText()+"','"+email.getText()+"','"+num.getText()+"'"+")");
+    public void onClickWrite(View view) {
+        Cursor cursor = db.rawQuery("select * from Email", null);
+        boolean i = false;
+        while (cursor.moveToNext()) {
+            String email1 = cursor.getString(cursor.getColumnIndex("email"));
+            if (email1.equals(email.getText().toString())) {
+                Toast.makeText(getApplicationContext(), "This email address has been signed up.", Toast.LENGTH_LONG).show();
+                i = true;
+            }
+        }
+        if (i == false) {
+            db.execSQL("insert into Email values(" + "'" + name.getText() + "','" + email.getText() + "','" + num.getText() + "'" + ")");
+            Toast.makeText(getApplicationContext(), "Writed.", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void onClickRead(View view){
-        Cursor cursor=db.rawQuery("select * from email",null);
+        Cursor cursor=db.rawQuery("select * from Email",null);
         String str="";
         while(cursor.moveToNext()){
             String name=cursor.getString(cursor.getColumnIndex("name"));
             String email=cursor.getString(cursor.getColumnIndex("email"));
             String num=cursor.getString(cursor.getColumnIndex("phone_num"));
-            str=str+"name:"+name+"email:"+email+"phone number:"+num+"\n";
+            str=str+"name:"+name+"\nemail:"+email+"\nphone number:"+num+"\n\n";
         }
         text.setText(str);
     }
 
-    public void onClickUpdate(View view){
-        db.execSQL("update email set name="+name.getText()+"num="+num.getText()+"where email="+email.getText());
+    public void onClickUpdate(View view) {
+        Cursor cursor = db.rawQuery("select * from Email", null);
+        boolean i = false;
+        while (cursor.moveToNext()) {
+            String email1 = cursor.getString(cursor.getColumnIndex("email"));
+            if (email1.equals(email.getText().toString())) {
+                i = true;
+            }
+        }
+        if (i == false) {
+            Toast.makeText(getApplicationContext(), "This email address doesn't exist.", Toast.LENGTH_LONG).show();
+        }
+        else {
+            db.execSQL("update Email set name='" + name.getText() + "',phone_num='" + num.getText() + "' where email='" + email.getText() + "'");
+            Toast.makeText(getApplicationContext(), "Updated.", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void onClickRemove(View view){
-        db.execSQL("delete from email where email="+email.getText());
+        Cursor cursor = db.rawQuery("select * from Email", null);
+        boolean i = false;
+        while (cursor.moveToNext()) {
+            String email1 = cursor.getString(cursor.getColumnIndex("email"));
+            if (email1.equals(email.getText().toString())) {
+                i = true;
+            }
+        }
+        if (i == false) {
+            Toast.makeText(getApplicationContext(), "This email address doesn't exist.", Toast.LENGTH_LONG).show();
+        }
+        else {
+            db.execSQL("delete from Email where email='"+email.getText()+"'");
+            Toast.makeText(getApplicationContext(), "Deleted.", Toast.LENGTH_LONG).show();
+        }
     }
 }
